@@ -1,0 +1,24 @@
+[2025-11-25 16:11:33] Computed from duration: duration_minutes=60 total_points=10
+[2025-11-25 16:11:33] Payout calc: total=10 mentor=9 system=1
+[2025-11-25 16:11:33] Updated users.balance for mentor 42, affected=1
+[2025-11-25 16:11:33] Updated system_wallet, affected=1
+[2025-11-25 16:11:33] Updated appointments status, affected=1
+[2025-11-25 16:11:33] Transaction committed for appointment 31
+[2025-11-25 16:32:45] Computed from duration: duration_minutes=120 total_points=20
+[2025-11-25 16:32:45] Payout calc: total=20 mentor=18 system=2
+[2025-11-25 16:32:45] Updated users.balance for mentor 42, affected=1
+[2025-11-25 16:32:45] Updated system_wallet, affected=1
+[2025-11-25 16:32:45] Updated appointments status, affected=1
+[2025-11-25 16:32:45] Transaction committed for appointment 32
+[2025-12-01 11:33:10] Computed from duration: duration_minutes=60 total_points=10
+[2025-12-01 11:33:10] Payout calc: total=10 mentor=9 system=1
+[2025-12-01 11:33:10] Updated users.balance for mentor 28, affected=1
+[2025-12-01 11:33:10] Updated system_wallet, affected=1
+[2025-12-01 11:33:10] Updated appointments status, affected=1
+[2025-12-01 11:33:10] Transaction committed for appointment 34
+[2025-12-01 12:11:44] Computed from duration: duration_minutes=120 total_points=20
+[2025-12-01 12:11:44] Payout calc: total=20 mentor=18 system=2
+[2025-12-01 12:11:44] Updated users.balance for mentor 28, affected=1
+[2025-12-01 12:11:44] Updated system_wallet, affected=1
+[2025-12-01 12:11:44] Updated appointments status, affected=1
+[2025-12-01 12:11:44] Transaction committed for appointment 35

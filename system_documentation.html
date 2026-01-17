@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentorHub System Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: #2d3436;
+            background-color: #f8f9fa;
+        }
+        .doc-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #2d3436;
+            font-weight: 800;
+            border-bottom: 3px solid #6c5ce7;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #6c5ce7;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        h3 {
+            color: #0984e3;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 25px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        code {
+            background-color: #f1f2f6;
+            color: #d63031;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+        .badge-role {
+            font-size: 0.8em;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #e1e1e1;
+            color: #333;
+            vertical-align: middle;
+        }
+        @media print {
+            body { background: white; }
+            .doc-container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+            .no-print { display: none; }
+            a { text-decoration: none; color: black; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="doc-container">
+    <div class="alert alert-info no-print mb-4 d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-info-circle me-2"></i> To save as PDF: Press <strong>Ctrl + P</strong> (Windows) or <strong>Cmd + P</strong> (Mac) and select "Save as PDF" as the destination.</span>
+        <button onclick="window.print()" class="btn btn-primary btn-sm fw-bold"><i class="fas fa-print me-2"></i> Print / Save PDF</button>
+    </div>
+
+    <h1>MentorHub System Documentation</h1>
+
+    <h2>1. System Overview</h2>
+    <p>MentorHub is a web-based mentorship platform designed to connect students with mentors for guidance, learning, and professional development. The system features role-based access control, real-time communication (chat and video), a social feed for learning, and a wallet system for financial transactions with a built-in commission model.</p>
+    
+    <p><strong>Core Technologies:</strong></p>
+    <ul>
+        <li><strong>Backend:</strong> PHP (Vanilla)</li>
+        <li><strong>Database:</strong> MySQL</li>
+        <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript, Bootstrap 5</li>
+        <li><strong>Assets:</strong> FontAwesome (Icons), Google Fonts (Poppins, Plus Jakarta Sans)</li>
+    </ul>
+
+    <h2>2. Directory Structure</h2>
+    <p>The project follows a modular structure primarily segregated by user roles within the <code>public/</code> directory.</p>
+    <ul>
+        <li><strong><code>public/</code></strong>: Contains the main application access points.
+            <ul>
+                <li><strong><code>student/</code></strong>: Student-facing interfaces (dashboard, appointments, learning feed, wallet).</li>
+                <li><strong><code>mentor/</code></strong>: Mentor-facing interfaces (dashboard, requests, posts, withdrawal).</li>
+                <li><strong><code>admin/</code></strong>: Admin interfaces for managing users and verifying payments.</li>
+                <li><strong><code>super_admin/</code></strong>: Top-level management (system dashboard, global reports, key generation).</li>
+                <li><strong><code>assets/</code></strong>: Static assets like images and CSS.</li>
+                <li><strong><code>uploads/</code></strong>: User-uploaded content (profile pictures, payment proofs).</li>
+            </ul>
+        </li>
+        <li><strong><code>includes/</code></strong>: Shared backend logic.
+            <ul>
+                <li><code>db.php</code>: Database connection configuration.</li>
+                <li><code>auth.php</code>: Authentication helpers.</li>
+            </ul>
+        </li>
+        <li><strong><code>sql/</code></strong>: Database schema definitions.</li>
+    </ul>
+
+    <h2>3. User Roles & Permissions</h2>
+    <p>The system defines four distinct user roles, each with specific permissions:</p>
+
+    <h3>1. Student</h3>
+    <ul>
+        <li><strong>Access:</strong> <code>public/student/</code></li>
+        <li><strong>Capabilities:</strong>
+            <ul>
+                <li>View mentor profiles and make appointment requests.</li>
+                <li>Join video mentorship sessions.</li>
+                <li>View and interact with the "Learning Feed" (<strong>View Comments</strong>, Like, Post Comments).</li>
+                <li>Chat with mentors.</li>
+                <li>Manage a wallet (Top-up via bank transfer/upload proof).</li>
+                <li>Rate and review mentors after sessions.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>2. Mentor</h3>
+    <ul>
+        <li><strong>Access:</strong> <code>public/mentor/</code></li>
+        <li><strong>Capabilities:</strong>
+            <ul>
+                <li>Create and edit a professional profile.</li>
+                <li>Accept or reject appointment requests.</li>
+                <li><strong>Sidebar Notifications:</strong> View real-time badge counts for pending appointment requests directly in the sidebar.</li>
+                <li>Conduct video sessions.</li>
+                <li>Post educational content to the "Learning Feed".</li>
+                <li>Chat with connected students.</li>
+                <li>Withdraw earnings from their wallet (subject to system commission).</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>3. Admin</h3>
+    <ul>
+        <li><strong>Access:</strong> <code>public/admin/</code></li>
+        <li><strong>Capabilities:</strong>
+            <ul>
+                <li>Manage users (Students/Mentors) created under their purview.</li>
+                <li>Verify and approve student top-up requests.</li>
+                <li>Monitor user activity.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>4. Super Admin</h3>
+    <ul>
+        <li><strong>Access:</strong> <code>public/super_admin/</code></li>
+        <li><strong>Capabilities:</strong>
+            <ul>
+                <li>Full system oversight.</li>
+                <li><strong>Financial Oversight:</strong> View <code>System Wallet</code> accumulating commissions from completed sessions.</li>
+                <li>View global financial reports (Total Revenue, Pending Withdrawals).</li>
+                <li>Manage other Administrators.</li>
+                <li>Generate invitation keys for new Admin registration.</li>
+                <li>Control system-wide settings.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2>4. Database Schema</h2>
+    <p>The database <code>mentorship_db</code> consists of the following key tables:</p>
+
+    <h3>Users & Auth</h3>
+    <ul>
+        <li><strong><code>users</code></strong>: Stores all user accounts (Student, Mentor, Admin).
+            <ul><li>Columns: <code>id</code>, <code>name</code>, <code>email</code>, <code>password</code>, <code>role</code>, <code>status</code>, <code>balance</code>, <code>teaching_balance</code>, <code>image_path</code>, <code>mentor_status</code>, <code>qr_code</code>, <code>created_by</code>, <code>created_at</code>.</li></ul>
+        </li>
+        <li><strong><code>super_admins</code></strong>: Dedicated table for super admin credentials.</li>
+        <li><strong><code>admin_keys</code></strong>: Manages invitation tokens for new admin registration.</li>
+    </ul>
+
+    <h3>Mentorship & Interaction</h3>
+    <ul>
+        <li><strong><code>appointments</code></strong>: Tracks mentorship sessions.
+            <ul><li>Columns: <code>id</code>, <code>student_id</code>, <code>mentor_id</code>, <code>status</code> (pending, accepted, completed, cancelled), <code>room_id</code>, <code>points</code> (cost), <code>mentor_paid</code>, <code>created_at</code>.</li></ul>
+        </li>
+        <li><strong><code>ratings</code></strong>: Feedback from students to mentors.</li>
+        <li><strong><code>messages</code></strong>: Real-time chat messages.</li>
+    </ul>
+
+    <h3>Social Feed</h3>
+    <ul>
+        <li><strong><code>mentor_posts</code></strong>: Educational posts created by mentors.</li>
+        <li><strong><code>post_likes</code></strong>: Likes on mentor posts.</li>
+        <li><strong><code>post_comments</code></strong>: Comments on mentor posts.</li>
+    </ul>
+
+    <h3>Financial</h3>
+    <ul>
+        <li><strong><code>system_wallet</code></strong>: Tracks central system funds (Commission Revenue).
+            <ul><li>Columns: <code>id</code>, <code>balance</code>.</li></ul>
+        </li>
+        <li><strong><code>topup_requests</code></strong>: Requests from students to add funds.</li>
+        <li><strong><code>withdrawal_requests</code></strong>: Requests from mentors to withdraw earnings.</li>
+    </ul>
+
+    <h2>5. Key Modules</h2>
+
+    <h3>Authentication Module</h3>
+    <ul>
+        <li>Handles login (<code>login.php</code>) and logout (<code>logout.php</code>).</li>
+        <li>Redirects users to their specific dashboards based on <code>role</code> session variable.</li>
+    </ul>
+
+    <h3>Mentorship Flow & Commission System</h3>
+    <ol>
+        <li><strong>Booking:</strong> Student requests appointment (<code>make_appointment.php</code>).</li>
+        <li><strong>Approval:</strong> Mentor accepts request (<code>requests.php</code>).</li>
+        <li><strong>Session:</strong> Both parties join a video room (<code>video_room.php</code>).</li>
+        <li><strong>Completion & Payout:</strong> 
+            <ul>
+                <li>When a session is marked <strong>Completed</strong>:</li>
+                <li><strong>10% Commission</strong> is deducted and sent to the <strong>System Wallet</strong>.</li>
+                <li><strong>90% Earnings</strong> are credited to the <strong>Mentor's Wallet</strong> (<code>teaching_balance</code>).</li>
+                <li>Transaction is atomic to ensure financial accuracy.</li>
+            </ul>
+        </li>
+        <li><strong>Rating:</strong> Student rates the mentor (<code>rate_mentor.php</code>).</li>
+    </ol>
+
+    <h3>Social Feed (Learning)</h3>
+    <ul>
+        <li>Located at <code>public/student/learn.php</code> and <code>public/mentor/posts.php</code>.</li>
+        <li>Mentors can share knowledge via posts with text/images.</li>
+        <li><strong>Interaction:</strong> Students can engage via likes and now view/add comments directly on the feed line items.</li>
+    </ul>
+
+    <h3>Wallet System</h3>
+    <ul>
+        <li><strong>Points/Balance:</strong> The internal currency.</li>
+        <li><strong>Top-up:</strong> Students upload proof of payment -> Admin approves -> Balance updates.</li>
+        <li><strong>Withdrawal:</strong> Mentors request withdrawal -> Super Admin/System processes payout -> Balance deducted.</li>
+    </ul>
+
+</div>
+
+<script>
+    // Auto-open print dialog if query param is set (optional UX)
+    if(window.location.search.includes('print=true')) {
+        window.onload = function() { window.print(); }
+    }
+</script>
+</body>
+</html>
