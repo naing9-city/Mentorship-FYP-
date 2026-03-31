@@ -400,7 +400,7 @@ $requests = $stmt->fetchAll();
                         </td>
                         <td>
                             <?php if ($r['admin_proof']): ?>
-                                <a href="../../uploads/<?= $r['admin_proof'] ?>" target="_blank" class="btn-proof">
+                                <a href="../uploads/<?= $r['admin_proof'] ?>" target="_blank" class="btn-proof">
                                     <i class="fas fa-file-invoice"></i> View Receipt
                                 </a>
                             <?php else: ?>

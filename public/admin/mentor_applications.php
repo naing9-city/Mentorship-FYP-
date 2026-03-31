@@ -96,7 +96,7 @@ include 'layout_header.php';
                         </td>
                         <td>
                             <?php if ($app['certificate']): ?>
-                                <a href="../../uploads/<?= $app['certificate'] ?>" target="_blank" class="text-primary fw-700 text-decoration-none">
+                                <a href="../uploads/<?= $app['certificate'] ?>" target="_blank" class="text-primary fw-700 text-decoration-none">
                                     <i class="fas fa-file-signature me-1"></i>View Document
                                 </a>
                             <?php else: ?>

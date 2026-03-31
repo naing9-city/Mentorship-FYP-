@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // File upload handling
     $document_path = null;
     if (isset($_FILES['documents']) && $_FILES['documents']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = '../../uploads/docs/';
+        $upload_dir = '../uploads/docs/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }

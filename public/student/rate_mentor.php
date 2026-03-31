@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
 <div class="rating-card">
-    <img src="<?= !empty($appt['mentor_photo']) ? '../../uploads/'.$appt['mentor_photo'] : 'https://ui-avatars.com/api/?name='.urlencode($appt['mentor_name']).'&background=4318FF&color=fff' ?>" class="mentor-avatar">
+    <img src="<?= !empty($appt['mentor_photo']) ? '../uploads/'.$appt['mentor_photo'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg=='.urlencode($appt['mentor_name']).'&background=4318FF&color=fff' ?>" class="mentor-avatar">
     
     <div class="rating-header">
         <h3>Share Your Experience</h3>

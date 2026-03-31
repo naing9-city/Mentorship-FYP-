@@ -309,7 +309,7 @@ $mentor = $stmt->fetch(PDO::FETCH_ASSOC);
             <div class="schedule-grid">
                 <?php foreach($appointments as $appt): ?>
                     <?php 
-                        $photo = !empty($appt['student_photo']) ? '../../uploads/' . $appt['student_photo'] : 'https://ui-avatars.com/api/?name='.urlencode($appt['student_name']).'&background=4318FF&color=fff';
+                        $photo = !empty($appt['student_photo']) ? '../uploads/' . $appt['student_photo'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg=='.urlencode($appt['student_name']).'&background=4318FF&color=fff';
                     ?>
                     <div class="appt-card">
                         <div class="student-profile">

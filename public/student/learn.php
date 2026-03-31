@@ -242,6 +242,37 @@ $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             height: 45px;
             border-radius: 14px;
             object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .m-initials {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #11047A, #4318FF);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .c-initials {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #11047A, #4318FF);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            flex-shrink: 0;
         }
 
         .m-name {
@@ -424,7 +455,11 @@ $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     ?>
                     <div class="post-card" id="post-<?= $post['id'] ?>">
                         <div class="post-header">
-                            <img src="<?= !empty($post['mentor_photo']) ? '../../uploads/' . $post['mentor_photo'] : 'https://ui-avatars.com/api/?name=' . urlencode($post['mentor_name']) . '&background=random' ?>"
+                            <?php if (!empty($post['mentor_photo'])): ?>
+                                <img src="../uploads/<?= htmlspecialchars($post['mentor_photo']) ?>" class="m-avatar">
+                            <?php else: ?>
+                                <div class="m-initials"><?= strtoupper(substr($post['mentor_name'], 0, 1)) ?></div>
+                            <?php endif; ?>"
                                 class="m-avatar">
                             <div>
                                 <p class="m-name"><?= htmlspecialchars($post['mentor_name']) ?></p>
@@ -461,9 +496,12 @@ $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php if (!empty($post_comments)): ?>
                             <div class="mt-3 pt-3 border-top border-light">
                                 <?php foreach ($post_comments as $comment): ?>
-                                    <div class="d-flex gap-2 mb-2">
-                                        <img src="<?= !empty($comment['profile_photo']) ? '../../uploads/' . $comment['profile_photo'] : 'https://ui-avatars.com/api/?name=' . urlencode($comment['name']) . '&size=32&background=random' ?>"
-                                            style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                                    <div class="d-flex gap-2 mb-2 align-items-start">
+                                        <?php if (!empty($comment['profile_photo'])): ?>
+                                            <img src="../uploads/<?= htmlspecialchars($comment['profile_photo']) ?>" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                        <?php else: ?>
+                                            <div class="c-initials"><?= strtoupper(substr($comment['name'], 0, 1)) ?></div>
+                                        <?php endif; ?>
                                         <div class="bg-light p-2 rounded-3" style="font-size: 13px;">
                                             <span class="fw-bold d-block text-dark"><?= htmlspecialchars($comment['name']) ?></span>
                                             <?= htmlspecialchars($comment['content']) ?>

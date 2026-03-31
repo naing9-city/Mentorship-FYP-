@@ -565,7 +565,7 @@ $count_history = $stmt->fetchColumn();
                         <?php if ($appointments): ?>
                             <?php foreach ($appointments as $a): ?>
                                 <?php
-                                $photo = $a['mentor_photo'] ? "../../{$a['mentor_photo']}" : "https://ui-avatars.com/api/?name=" . urlencode($a['mentor_name'] ?? 'M') . "&background=random";
+                                $photo = $a['mentor_photo'] ? "../../{$a['mentor_photo']}" : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg==" . urlencode($a['mentor_name'] ?? 'M') . "&background=random";
                                 ?>
                                 <tr>
                                     <td>

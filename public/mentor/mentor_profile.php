@@ -32,10 +32,20 @@ $stmt->execute([$mentor_id]);
 $avg_rating = $stmt->fetchColumn();
 $rating_display = $avg_rating ? number_format($avg_rating, 1) : 'N/A';
 
-// Handle Profile Photo URL
-$photo_url = !empty($mentor['profile_photo']) 
-    ? htmlspecialchars($mentor['profile_photo']) 
-    : 'https://ui-avatars.com/api/?background=random&name=' . urlencode($mentor['name']);
+// Handle Profile Photo / Video URL
+$is_video_avatar = false;
+$initials = strtoupper(substr($mentor['name'] ?? 'M', 0, 1));
+$raw_photo = $mentor['profile_photo'] ?? '';
+$photo_disk = !empty($raw_photo) ? __DIR__ . '/../uploads/' . $raw_photo : '';
+$photo_url = (!empty($raw_photo) && file_exists($photo_disk))
+    ? '../uploads/' . htmlspecialchars($raw_photo)
+    : null;
+if ($photo_url) {
+    $ext = strtolower(pathinfo($raw_photo, PATHINFO_EXTENSION));
+    if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
+        $is_video_avatar = true;
+    }
+}
 
 // Handle POST Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -48,9 +58,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $bio = trim($_POST['bio']);
             $hourly_rate = floatval($_POST['hourly_rate']);
             $is_volunteer = isset($_POST['is_volunteer']) ? 1 : 0;
+            $remove_photo = isset($_POST['remove_photo']) ? 1 : 0;
+            $profile_photo = $mentor['profile_photo'];
 
-            $stmt = $pdo->prepare("UPDATE users SET name = ?, education = ?, expertise = ?, bio = ?, hourly_rate = ?, is_volunteer = ? WHERE id = ?");
-            $stmt->execute([$name, $education, $expertise, $bio, $hourly_rate, $is_volunteer, $mentor_id]);
+            if ($remove_photo) {
+                $profile_photo = null;
+            }
+
+            if (!empty($_FILES['profile_photo']['name'])) {
+                $filename = "profile_" . time() . "_" . uniqid() . "_" . basename($_FILES['profile_photo']['name']);
+                $target = "../uploads/" . $filename;
+                if (move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target)) {
+                    $profile_photo = $filename;
+                }
+            }
+
+            $stmt = $pdo->prepare("UPDATE users SET name = ?, education = ?, expertise = ?, bio = ?, hourly_rate = ?, is_volunteer = ?, profile_photo = ? WHERE id = ?");
+            $stmt->execute([$name, $education, $expertise, $bio, $hourly_rate, $is_volunteer, $profile_photo, $mentor_id]);
             
             header("Location: mentor_profile.php?id=" . $mentor_id . "&success=updated");
             exit;
@@ -61,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
             if (!empty($_FILES['image']['name'])) {
                 $filename = time() . "_" . uniqid() . "_" . basename($_FILES['image']['name']);
-                $target = "../../uploads/" . $filename;
+                $target = "../uploads/" . $filename;
                 if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
                     $image_path = $filename;
                 }
@@ -177,6 +201,15 @@ if (isset($_SESSION['user_id'])) {
             height: 160px; background: linear-gradient(135deg, #4318FF 0%, #B4A0FF 100%);
             position: relative;
         }
+        .profile-avatar-initials {
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #4318FF, #7033FF);
+            color: white; font-weight: 800; font-size: 64px;
+            width: 170px; height: 170px; border-radius: 40px;
+            border: 8px solid white; margin-top: -85px;
+            position: relative; z-index: 2;
+            box-shadow: 0 20px 40px rgba(67,24,255,0.25);
+        }
         .profile-info-section { padding: 0 40px 40px; margin-top: -60px; position: relative; text-align: center; }
         .profile-avatar-large {
             width: 130px; height: 130px; border-radius: 40px; object-fit: cover;
@@ -211,10 +244,19 @@ if (isset($_SESSION['user_id'])) {
         .section-header h5 { margin: 0; font-weight: 800; color: var(--dark); }
         .section-text { font-size: 15px; line-height: 1.8; color: var(--secondary); font-weight: 500; }
 
-        .price-badge {
-            background: rgba(5, 205, 153, 0.1); color: var(--success);
-            padding: 10px 20px; border-radius: 15px; font-weight: 800; font-size: 14px;
-            display: inline-flex; align-items: center; gap: 8px;
+        .price-badge-header {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 13px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            text-transform: uppercase;
         }
         .price-pts { font-size: 20px; color: var(--dark); font-weight: 800; }
 
@@ -296,9 +338,21 @@ if (isset($_SESSION['user_id'])) {
                             <i class="fas fa-arrow-left me-2"></i> <?= $back_label ?>
                         </a>
                     </div>
+                    <!-- Pricing Badge on Banner -->
+                    <div class="price-badge-header">
+                        <?php if ($mentor['is_volunteer']): ?>
+                            VOLUNTEER / FREE
+                        <?php else: ?>
+                            <?= number_format($mentor['hourly_rate'], 0) ?> PTS / HR
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <div class="profile-info-section">
-                    <img src="<?= $photo_url ?>" class="profile-avatar-large">
+                    <?php if ($is_video_avatar): ?>
+                        <video src="<?= $photo_url ?>" class="profile-avatar-large shadow-lg" autoplay loop muted playsinline></video>
+                    <?php else: ?>
+                        <img src="<?= $photo_url ?>" class="profile-avatar-large shadow-lg">
+                    <?php endif; ?>
                     <h2 class="profile-name"><?= htmlspecialchars($mentor['name']) ?></h2>
                     <p class="profile-education"><?= htmlspecialchars($mentor['education'] ?? 'MentorHub Mentor') ?></p>
                     
@@ -378,17 +432,24 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                         <div class="mt-3">
                             <?php if ($mentor['is_volunteer']): ?>
-                                <div class="price-badge" style="background: #E6FAF5; color: #05CD99; width: 100%; justify-content: center; padding: 20px;">
-                                    <i class="fas fa-hands-helping fa-lg"></i>
-                                    <span class="fs-5 fw-800">Volunteer (Free)</span>
+                                <div class="price-badge-premium" style="background: rgba(5, 205, 153, 0.1); color: #05CD99; border: 1px solid rgba(5, 205, 153, 0.2); padding: 25px; border-radius: 20px; text-align: center;">
+                                    <i class="fas fa-heart fa-2x mb-3 d-block"></i>
+                                    <span class="fs-5 fw-800">FREE / VOLUNTEER</span>
+                                    <p class="text-muted small mt-2 fw-600 mb-0">Contributing as a community mentor</p>
                                 </div>
-                                <p class="text-muted small mt-2 text-center fw-600">This mentor provides sessions as a community volunteer.</p>
                             <?php else: ?>
-                                <div class="d-flex align-items-center justify-content-between bg-light p-4 rounded-4">
-                                    <div class="text-secondary fw-800">Hourly Rate</div>
-                                    <div class="price-pts"><?= number_format($mentor['hourly_rate'], 0) ?> <span class="text-secondary small">Pts</span></div>
+                                <div class="d-flex align-items-center justify-content-between p-4 rounded-4" style="background: var(--primary-light); border: 2px solid #E0E8FF;">
+                                    <div>
+                                        <div class="text-secondary fw-800 small text-uppercase mb-1" style="letter-spacing: 1px;">Standard Rate</div>
+                                        <div class="text-dark fw-400 small">Per hour session</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="price-pts text-primary" style="font-size: 32px; letter-spacing: -1px;"><?= number_format($mentor['hourly_rate'], 0) ?> <span class="fs-6" style="color: var(--secondary); letter-spacing: 0;">Pts</span></div>
+                                    </div>
                                 </div>
-                                <p class="text-muted small mt-3 fw-600"><i class="fas fa-info-circle me-1"></i> Points are deducted from your wallet upon successful booking.</p>
+                                <div class="alert alert-light border mt-3 rounded-3 py-2 px-3">
+                                    <p class="text-muted small m-0 fw-600"><i class="fas fa-info-circle me-1 text-primary"></i> Secure payment processed via wallet.</p>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -415,7 +476,7 @@ if (isset($_SESSION['user_id'])) {
             <?php if(isset($_SESSION['user_id']) && $_SESSION['user_id'] == $mentor_id): ?>
                 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
                   <div class="modal-dialog modal-lg">
-                    <form class="modal-content" method="POST">
+                    <form class="modal-content" method="POST" enctype="multipart/form-data">
                       <div class="modal-header">
                         <h4 class="modal-title">Update Your Profile</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -424,9 +485,26 @@ if (isset($_SESSION['user_id'])) {
                         <input type="hidden" name="action" value="update_profile">
                         
                         <div class="row g-4">
-                            <div class="col-md-6 text-center mb-2">
-                                <img src="<?= $photo_url ?>" style="width: 100px; height: 100px; border-radius: 25px; object-fit: cover;" class="mb-2">
-                                <p class="text-muted x-small fw-600">Avatar managed via account settings</p>
+                            <div class="col-md-12 text-center mb-2">
+                                <div class="position-relative d-inline-block">
+                                    <?php if ($is_video_avatar): ?>
+                                        <video src="<?= $photo_url ?>" style="width: 120px; height: 120px; border-radius: 30px; object-fit: cover;" class="mb-2 shadow-sm" autoplay loop muted playsinline></video>
+                                    <?php else: ?>
+                                        <img src="<?= $photo_url ?>" style="width: 120px; height: 120px; border-radius: 30px; object-fit: cover;" class="mb-2 shadow-sm">
+                                    <?php endif; ?>
+                                </div>
+                                <div class="mt-2">
+                                    <label class="btn btn-premium-sm btn-p-light btn-sm px-4">
+                                        <i class="fas fa-camera me-2"></i> Change Photo
+                                        <input type="file" name="profile_photo" hidden accept="image/*,video/*">
+                                    </label>
+                                    <?php if (!empty($mentor['profile_photo'])): ?>
+                                        <div class="form-check mt-2 justify-content-center d-flex">
+                                            <input class="form-check-input" type="checkbox" name="remove_photo" id="removePhoto">
+                                            <label class="form-check-label ms-2 text-danger fw-600" for="removePhoto" style="font-size: 13px;">Remove photo</label>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label">Display Name</label>
@@ -474,6 +552,19 @@ if (isset($_SESSION['user_id'])) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JS for auto-opening modal on edit request -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("edit") === "profile") {
+            const modalEl = document.getElementById("editProfileModal");
+            if (modalEl) {
+                const editModal = new bootstrap.Modal(modalEl);
+                editModal.show();
+            }
+        }
+    });
+</script>
 </body>
 </html>
 

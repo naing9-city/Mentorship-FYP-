@@ -8,6 +8,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 require_once __DIR__ . '/../../includes/db.php';
 
 $admin_id = $_SESSION['user_id'];
+$stmt = $pdo->prepare("SELECT name FROM users WHERE id = ?");
+$stmt->execute([$admin_id]);
+$admin_name = $stmt->fetchColumn() ?: 'Admin';
 
 // Fetch Pending Counts for Notifications
 // 1. Pending Mentor Applications
@@ -30,6 +33,16 @@ $total_pending_count = $pending_mentor_count + $pending_topup_count + $pending_w
 // Determine current page for active state
 $current_page = basename($_SERVER['PHP_SELF']);
 $current_view = $_GET['view'] ?? '';
+
+// Time-based greeting
+$hour = date('H');
+if ($hour < 12) {
+    $greeting = "Good morning";
+} elseif ($hour < 18) {
+    $greeting = "Good afternoon";
+} else {
+    $greeting = "Good evening";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -488,10 +501,7 @@ $current_view = $_GET['view'] ?? '';
 
         <!-- Topbar -->
         <div class="topbar">
-            <div class="search-inner">
-                <i class="fas fa-search text-muted"></i>
-                <input type="text" placeholder="Search students, mentors, IDs...">
-            </div>
+            <h2 class="m-0" style="font-size: 28px; font-weight: 800; letter-spacing: -1px;"><?= $greeting ?>, <span style="background: linear-gradient(135deg, var(--dark), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><?= htmlspecialchars($_SESSION['name'] ?? 'Admin') ?></span>! 👋</h2>
             <div class="top-icons">
                 <div class="icon-btn">
                     <i class="fas fa-bell"></i>

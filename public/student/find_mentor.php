@@ -10,11 +10,38 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Get student's info
-$stmt = $pdo->prepare("SELECT created_by, mentor_status FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT name, created_by, mentor_status, profile_photo FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user_info = $stmt->fetch(PDO::FETCH_ASSOC);
+$user_name = $user_info['name'];
 $admin_id = $user_info['created_by'];
 $mentor_status = $user_info['mentor_status'];
+$profile_photo = $user_info['profile_photo'] ?? null;
+
+// Determine Avatar Media for current student
+$is_video_my_avatar = false;
+$my_avatar_html = '<div class="user-avatar">' . strtoupper(substr($user_name, 0, 1)) . '</div>';
+
+if ($profile_photo) {
+    $ext = strtolower(pathinfo($profile_photo, PATHINFO_EXTENSION));
+    $is_video_my_avatar = in_array($ext, ['mp4', 'webm', 'ogg']);
+    $media_url = '../uploads/' . htmlspecialchars($profile_photo);
+    if ($is_video_my_avatar) {
+        $my_avatar_html = '<video src="' . $media_url . '" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);" autoplay loop muted playsinline></video>';
+    } else {
+        $my_avatar_html = '<img src="' . $media_url . '" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);">';
+    }
+}
+
+// Time-based greeting
+$hour = date('H');
+if ($hour < 12) {
+    $greeting = "Good morning";
+} elseif ($hour < 18) {
+    $greeting = "Good afternoon";
+} else {
+    $greeting = "Good evening";
+}
 
 // Get Search Term
 $search = $_GET['search'] ?? '';
@@ -183,7 +210,15 @@ $mentors = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px;
-            flex: 1;
+            width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
+        }
+
+        /* Mentor Cards Styling */
+        .mentor-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
         }
 
         /* Top Bar */
@@ -254,13 +289,6 @@ $mentors = $stmt->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);
         }
 
-        /* Mentor Cards Styling */
-        .mentor-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 30px;
-        }
-
         .mentor-card {
             background: var(--white);
             border-radius: 24px;
@@ -270,6 +298,7 @@ $mentors = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display: flex;
             flex-direction: column;
             border: 1px solid rgba(226, 232, 240, 0.5);
+            position: relative;
         }
 
         .mentor-card:hover {
@@ -278,7 +307,7 @@ $mentors = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .mentor-cover {
-            height: 200px;
+            height: 160px;
             background-size: cover;
             background-position: center;
             position: relative;
@@ -288,33 +317,36 @@ $mentors = $stmt->fetchAll(PDO::FETCH_ASSOC);
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
             padding: 8px 16px;
             border-radius: 14px;
             font-weight: 800;
             font-size: 12px;
             color: var(--primary-blue);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            z-index: 10;
         }
 
         .mentor-content {
-            padding: 25px;
+            padding: 20px;
             flex: 1;
         }
 
         .mentor-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
             color: var(--text-dark);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             letter-spacing: -0.5px;
         }
 
         .mentor-sub {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .mentor-stats {
@@ -455,15 +487,13 @@ $mentors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Top Bar -->
         <div class="topbar">
-            <form action="" method="GET" class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Search by name, expertise..."
-                    value="<?= htmlspecialchars($search) ?>">
-            </form>
+            <h2 class="m-0" style="font-size: 28px; font-weight: 800; letter-spacing: -1px;"><?= $greeting ?>, <span style="background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><?= htmlspecialchars($user_name) ?></span>! 👋</h2>
             <div class="top-icons">
                 <i class="far fa-bell icon-btn"></i>
                 <i class="far fa-moon icon-btn"></i>
-                <div class="user-avatar"><?= substr($_SESSION['user_id'], 0, 1) ?></div>
+                <a href="index.php?edit=profile" class="user-avatar-container">
+                    <?= $my_avatar_html ?>
+                </a>
             </div>
         </div>
 
@@ -475,10 +505,21 @@ $mentors = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="mentor-grid">
             <?php foreach ($mentors as $m): ?>
                 <?php
-                $photo = !empty($m['profile_photo']) ? '../../uploads/' . $m['profile_photo'] : 'https://ui-avatars.com/api/?name=' . urlencode($m['name']) . '&background=random';
+                $is_video = false;
+                if (!empty($m['profile_photo'])) {
+                    $ext = strtolower(pathinfo($m['profile_photo'], PATHINFO_EXTENSION));
+                    $is_video = in_array($ext, ['mp4', 'webm', 'ogg']);
+                    $photo = '../uploads/' . htmlspecialchars($m['profile_photo']);
+                } else {
+                    $photo = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg==' . urlencode($m['name']) . '&background=random&color=fff';
+                }
                 ?>
                 <div class="mentor-card">
-                    <div class="mentor-cover" style="background-image: url('<?= $photo ?>')">
+                    <div class="mentor-cover" style="<?= !$is_video ? "background-image: url('" . $photo . "');" : 'background-color: #1B2559; position: relative; overflow: hidden;' ?>">
+                        <?php if ($is_video): ?>
+                            <video src="<?= $photo ?>" autoplay loop muted playsinline
+                                style="width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: 0;"></video>
+                        <?php endif; ?>
                         <div class="mentor-badge">
                             <?php if ($m['is_volunteer']): ?>
                                 FREE

@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
 
             // Handle Refund Proof Upload
             if (isset($_FILES['rejection_proof']) && $_FILES['rejection_proof']['error'] === 0) {
-                $upload_dir = '../../uploads/payouts/';
+                $upload_dir = '../uploads/payouts/';
                 if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
                 
                 $ext = pathinfo($_FILES['rejection_proof']['name'], PATHINFO_EXTENSION);
@@ -271,8 +271,8 @@ include 'layout_header.php';
                                 <td class="fw-800 text-primary">$<?= number_format($p['amount'], 2) ?></td>
                                 <td>
                                     <?php if ($p['proof_image'] && $p['proof_image'] !== 'Direct Assignment'): ?>
-                                    <a href="../../uploads/<?= $p['proof_image'] ?>" target="_blank">
-                                        <img src="../../uploads/<?= $p['proof_image'] ?>" class="proof-img">
+                                    <a href="../uploads/<?= $p['proof_image'] ?>" target="_blank">
+                                        <img src="../uploads/<?= $p['proof_image'] ?>" class="proof-img">
                                     </a>
                                     <?php else: ?>
                                         <span class="text-muted small">N/A</span>

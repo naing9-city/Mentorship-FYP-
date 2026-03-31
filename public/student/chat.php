@@ -660,7 +660,7 @@ $pdo->prepare("UPDATE users SET last_seen = NOW() WHERE id = ?")->execute([$stud
                     <?php foreach ($mentors as $m): ?>
                         <?php
                         $isOnline = (strtotime($m['last_seen']) > time() - 300);
-                        $photo = !empty($m['profile_photo']) ? '../../uploads/' . $m['profile_photo'] : 'https://ui-avatars.com/api/?name=' . urlencode($m['name']) . '&background=random&color=fff';
+                        $photo = !empty($m['profile_photo']) ? '../uploads/' . $m['profile_photo'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg==' . urlencode($m['name']) . '&background=random&color=fff';
                         ?>
                         <a class="user-item <?= $m['id'] == $selected ? 'active' : '' ?>" href="?mentor_id=<?= $m['id'] ?>">
                             <div class="u-avatar" style="background-image: url('<?= $photo ?>')">
@@ -681,7 +681,7 @@ $pdo->prepare("UPDATE users SET last_seen = NOW() WHERE id = ?")->execute([$stud
             <!-- Main Chat Area -->
             <div class="message-area">
                 <?php if ($selMentor): ?>
-                    <?php $selPhoto = !empty($selMentor['profile_photo']) ? '../../uploads/' . $selMentor['profile_photo'] : 'https://ui-avatars.com/api/?name=' . urlencode($selMentor['name']) . '&background=random&color=fff'; ?>
+                    <?php $selPhoto = !empty($selMentor['profile_photo']) ? '../uploads/' . $selMentor['profile_photo'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg==' . urlencode($selMentor['name']) . '&background=random&color=fff'; ?>
                     <div class="chat-header">
                         <div class="header-info">
                             <div class="u-avatar"
@@ -758,8 +758,8 @@ $pdo->prepare("UPDATE users SET last_seen = NOW() WHERE id = ?")->execute([$stud
                 let content = `<div class="bubble">${m.message ? m.message : ''}`;
                 if (m.attachment_path) {
                     const ext = m.attachment_path.split('.').pop().toLowerCase();
-                    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) content += `<div><img src="../../uploads/${m.attachment_path}" style="max-width:200px; border-radius:10px; margin-top:10px;"></div>`;
-                    else content += `<div class="mt-2"><a href="../../uploads/${m.attachment_path}" target="_blank" class="small text-decoration-none"><i class="fas fa-file"></i> View File</a></div>`;
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) content += `<div><img src="../uploads/${m.attachment_path}" style="max-width:200px; border-radius:10px; margin-top:10px;"></div>`;
+                    else content += `<div class="mt-2"><a href="../uploads/${m.attachment_path}" target="_blank" class="small text-decoration-none"><i class="fas fa-file"></i> View File</a></div>`;
                 }
                 content += `</div><div class="m-time">${m.created_at}</div>`;
                 div.innerHTML = content;

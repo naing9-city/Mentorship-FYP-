@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
             
             // Handle Proof Upload
             if (isset($_FILES['admin_proof']) && $_FILES['admin_proof']['error'] === 0) {
-                $upload_dir = '../../uploads/payouts/';
+                $upload_dir = '../uploads/payouts/';
                 if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
                 
                 $ext = pathinfo($_FILES['admin_proof']['name'], PATHINFO_EXTENSION);
@@ -235,7 +235,7 @@ include 'layout_header.php';
                         </td>
                         <td>
                             <?php if ($h['status'] === 'approved' && $h['admin_proof']): ?>
-                                <a href="../../uploads/<?= $h['admin_proof'] ?>" target="_blank" class="text-primary fw-700 text-decoration-none">
+                                <a href="../uploads/<?= $h['admin_proof'] ?>" target="_blank" class="text-primary fw-700 text-decoration-none">
                                     <i class="fas fa-receipt me-1"></i>View Payout Receipt
                                 </a>
                             <?php elseif ($h['status'] === 'rejected' && $h['rejection_reason']): ?>

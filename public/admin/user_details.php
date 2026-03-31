@@ -35,7 +35,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_post' && isset($_GET['
     
     if ($post_to_del) {
         if ($post_to_del['image_path']) {
-            $image_file = __DIR__ . '/../../uploads/' . $post_to_del['image_path'];
+            $image_file = __DIR__ . '/../uploads/' . $post_to_del['image_path'];
             if (file_exists($image_file)) unlink($image_file);
         }
         $pdo->prepare("DELETE FROM mentor_posts WHERE id = ?")->execute([$post_id]);
@@ -243,7 +243,7 @@ include 'layout_header.php';
                         <div class="text-secondary small fw-700 mb-3"><?= date('F d, Y \a\t H:i', strtotime($post['created_at'])) ?></div>
                         <?php if ($post['image_path']): ?>
                             <div class="mb-3">
-                                <img src="../../uploads/<?= htmlspecialchars($post['image_path']) ?>" class="img-fluid rounded-4 shadow-sm" style="max-height: 350px; width: 100%; object-fit: cover;">
+                                <img src="../uploads/<?= htmlspecialchars($post['image_path']) ?>" class="img-fluid rounded-4 shadow-sm" style="max-height: 350px; width: 100%; object-fit: cover;">
                             </div>
                         <?php endif; ?>
                         <p class="mb-0 fw-500 lh-lg" style="color: var(--dark);"><?= nl2br(htmlspecialchars($post['content'])) ?></p>

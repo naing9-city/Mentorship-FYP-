@@ -363,7 +363,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $mentor) {
 
             <?php if ($mentor): ?>
                 <div class="mini-profile">
-                    <img src="<?= !empty($mentor['profile_photo']) ? '../../'.$mentor['profile_photo'] : 'https://ui-avatars.com/api/?name='.urlencode($mentor['name']).'&background=random' ?>" class="mini-avatar">
+                    <img src="<?= !empty($mentor['profile_photo']) ? '../../'.$mentor['profile_photo'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg=='.urlencode($mentor['name']).'&background=random' ?>" class="mini-avatar">
                     <div class="mini-info">
                         <h5><?= htmlspecialchars($mentor['name']) ?></h5>
                         <p><?= htmlspecialchars($mentor['education'] ?? 'Certified Mentor') ?></p>

@@ -46,6 +46,16 @@ $active_keys = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $pdo->query("SELECT *, UNIX_TIMESTAMP(created_at) as created_time FROM admin_keys WHERE is_used = 1 OR created_at <= NOW() - INTERVAL 5 MINUTE ORDER BY created_at DESC LIMIT 10");
 $history_keys = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Time-based greeting
+$hour = date('H');
+if ($hour < 12) {
+    $greeting = "Good morning";
+} elseif ($hour < 18) {
+    $greeting = "Good afternoon";
+} else {
+    $greeting = "Good evening";
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -316,12 +326,9 @@ $history_keys = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="main-content">
         <div class="topbar">
-            <div class="search-inner">
-                <i class="fas fa-search text-muted"></i>
-                <input type="text" placeholder="Search system resources...">
-            </div>
+            <h2 class="m-0" style="font-size: 28px; font-weight: 800; letter-spacing: -1px;"><?= $greeting ?>, <span style="color: var(--primary);"><?= htmlspecialchars($super_admin_name) ?></span>! 👋</h2>
             <div class="top-icons">
-                <span class="fw-bold text-dark me-2"><?= htmlspecialchars($super_admin_name) ?></span>
+                <span class="fw-bold text-dark me-2 d-none d-md-inline"><?= htmlspecialchars($super_admin_name) ?></span>
                 <div class="admin-avatar">SA</div>
             </div>
         </div>

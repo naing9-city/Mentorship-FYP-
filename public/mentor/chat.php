@@ -307,7 +307,7 @@ if ($selected) {
                 <?php foreach($students as $s): ?>
                     <?php 
                         $isOnline = (strtotime($s['last_seen']) > time() - 300);
-                        $photo = !empty($s['profile_photo']) ? $s['profile_photo'] : "https://ui-avatars.com/api/?name=".urlencode($s['name'])."&background=4318FF&color=fff";
+                        $photo = !empty($s['profile_photo']) ? $s['profile_photo'] : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg==".urlencode($s['name'])."&background=4318FF&color=fff";
                     ?>
                     <a class="user-item <?= $s['id'] == $selected ? 'active' : '' ?>" href="?student_id=<?= $s['id'] ?>">
                         <div class="avatar-wrapper">
@@ -340,7 +340,7 @@ if ($selected) {
     <!-- Message View -->
     <div class="chat-view-pane">
         <?php if ($selUser): ?>
-            <?php $selPhoto = !empty($selUser['profile_photo']) ? $selUser['profile_photo'] : "https://ui-avatars.com/api/?name=".urlencode($selUser['name'])."&background=4318FF&color=fff"; ?>
+            <?php $selPhoto = !empty($selUser['profile_photo']) ? $selUser['profile_photo'] : "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYWVjMCI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg==".urlencode($selUser['name'])."&background=4318FF&color=fff"; ?>
             <div class="chat-view-header">
                 <div class="header-user-info">
                     <img src="<?= $selPhoto ?>" class="header-avatar">
@@ -449,9 +449,9 @@ function renderMessages(messages){
         if(m.attachment_path) {
             const ext = m.attachment_path.split('.').pop().toLowerCase();
             if(['jpg','jpeg','png','gif','webp'].includes(ext)){
-                content += `<div><img src="../../uploads/${m.attachment_path}" class="attachment-img"></div>`;
+                content += `<div><img src="../uploads/${m.attachment_path}" class="attachment-img"></div>`;
             } else {
-                content += `<div class="mt-2 small"><a href="../../uploads/${m.attachment_path}" target="_blank" class="text-white fw-bold"><i class="fas fa-file-alt"></i> View Reference File</a></div>`;
+                content += `<div class="mt-2 small"><a href="../uploads/${m.attachment_path}" target="_blank" class="text-white fw-bold"><i class="fas fa-file-alt"></i> View Reference File</a></div>`;
             }
         }
         content += `</div><div class="msg-meta">${m.created_at}</div>`;

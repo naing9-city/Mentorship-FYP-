@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     if (!empty($_FILES['image']['name'])) {
         $filename = time() . "_" . uniqid() . "_" . basename($_FILES['image']['name']);
-        $upload_dir = "../../uploads/";
+        $upload_dir = "../uploads/";
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
         
         $target = $upload_dir . $filename;
@@ -51,9 +51,9 @@ $stmt = $pdo->prepare($query);
 $stmt->execute([$mentor_id, $mentor_id]);
 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$photo_url = !empty($mentor['profile_photo']) 
-    ? htmlspecialchars($mentor['profile_photo']) 
-    : 'https://ui-avatars.com/api/?background=random&name=' . urlencode($mentor['name']);
+$has_photo = !empty($mentor['profile_photo']);
+$photo_url = $has_photo ? '../uploads/' . htmlspecialchars($mentor['profile_photo']) : '';
+$mentor_initial = strtoupper(substr($mentor['name'], 0, 1));
 ?>
 
 <!DOCTYPE html>
@@ -152,6 +152,7 @@ $photo_url = !empty($mentor['profile_photo'])
         .post-card { background: var(--card-bg); border-radius: 25px; margin-bottom: 30px; overflow: hidden; box-shadow: var(--shadow-md); }
         .post-header { padding: 25px; display: flex; align-items: center; gap: 15px; }
         .poster-avatar { width: 48px; height: 48px; border-radius: 14px; object-fit: cover; }
+        .poster-initials { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #11047A, #4318FF); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; text-transform: uppercase; flex-shrink: 0; }
         .post-info h6 { margin: 0; font-weight: 800; color: var(--dark); font-size: 16px; }
         .post-time { font-size: 12px; font-weight: 700; color: var(--secondary); }
         
@@ -251,7 +252,11 @@ $photo_url = !empty($mentor['profile_photo'])
             <?php foreach ($posts as $post): ?>
                 <div class="post-card">
                     <div class="post-header">
-                        <img src="<?= $photo_url ?>" class="poster-avatar">
+                        <?php if ($has_photo): ?>
+                            <img src="<?= $photo_url ?>" class="poster-avatar">
+                        <?php else: ?>
+                            <div class="poster-initials"><?= $mentor_initial ?></div>
+                        <?php endif; ?>
                         <div class="post-info">
                             <h6><?= htmlspecialchars($mentor['name']) ?></h6>
                             <span class="post-time"><?= date('M d, Y • h:i A', strtotime($post['created_at'])) ?></span>
@@ -262,7 +267,7 @@ $photo_url = !empty($mentor['profile_photo'])
                             <?= nl2br(htmlspecialchars($post['content'])) ?>
                         </div>
                         <?php if ($post['image_path']): ?>
-                            <img src="../../uploads/<?= htmlspecialchars($post['image_path']) ?>" class="post-media shadow-sm">
+                            <img src="../uploads/<?= htmlspecialchars($post['image_path']) ?>" class="post-media shadow-sm">
                         <?php endif; ?>
                     </div>
                     <div class="post-footer">

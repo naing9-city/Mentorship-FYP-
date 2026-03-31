@@ -98,9 +98,25 @@ if (isset($_GET['action'], $_GET['id'])) {
    DATA FETCHING FOR DASHBOARD
 -----------------------------------------------------------*/
 // 1. Mentor Info & Balance
-$stmt = $pdo->prepare("SELECT name, balance, teaching_balance FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT name, balance, teaching_balance, profile_photo FROM users WHERE id = ?");
 $stmt->execute([$mentor_id]);
 $mentor = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Determine Avatar Media
+$is_video_avatar = false;
+$avatar_html = '<div class="user-avatar-initials"><i class="fas fa-user"></i></div>';
+$profile_photo = $mentor['profile_photo'] ?? null;
+
+if ($profile_photo) {
+    $ext = strtolower(pathinfo($profile_photo, PATHINFO_EXTENSION));
+    $is_video_avatar = in_array($ext, ['mp4', 'webm', 'ogg']);
+    $media_url = '../uploads/' . htmlspecialchars($profile_photo);
+    if ($is_video_avatar) {
+        $avatar_html = '<video src="' . $media_url . '" class="user-avatar-media" autoplay loop muted playsinline></video>';
+    } else {
+        $avatar_html = '<img src="' . $media_url . '" class="user-avatar-media">';
+    }
+}
 
 // 2. Pending Payout (Sum of points for 'accepted' appointments * 0.9)
 $stmt = $pdo->prepare("SELECT SUM(points) FROM appointments WHERE mentor_id = ? AND status = 'accepted'");
@@ -137,6 +153,16 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$mentor_id]);
 $upcoming_schedule = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Time-based greeting
+$hour = date('H');
+if ($hour < 12) {
+    $greeting = "Good morning";
+} elseif ($hour < 18) {
+    $greeting = "Good afternoon";
+} else {
+    $greeting = "Good evening";
+}
 
 ?>
 <!DOCTYPE html>
@@ -332,7 +358,7 @@ $upcoming_schedule = $stmt->fetchAll(PDO::FETCH_ASSOC);
             transform: scale(1.1);
         }
 
-        .user-avatar {
+        .user-avatar-initials {
             width: 40px;
             height: 40px;
             background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
@@ -344,6 +370,14 @@ $upcoming_schedule = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 800;
             font-size: 15px;
             text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);
+        }
+        
+        .user-avatar-media {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            object-fit: cover;
             box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);
         }
 
@@ -708,11 +742,13 @@ $upcoming_schedule = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Top Bar -->
         <div class="topbar">
-            <h4>Good Morning, <span class="fw-800"><?= explode(' ', $mentor['name'])[0] ?>!</span></h4>
+            <h2 class="m-0" style="font-size: 28px; font-weight: 800; letter-spacing: -1px;"><?= $greeting ?>, <span style="background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><?= htmlspecialchars(explode(' ', $mentor['name'])[0]) ?></span>! 👋</h2>
             <div class="top-icons">
                 <i class="far fa-bell icon-btn"></i>
                 <i class="far fa-moon icon-btn"></i>
-                <div class="user-avatar"><?= substr($mentor['name'], 0, 1) ?></div>
+                <a href="mentor_profile.php?id=<?= $mentor_id ?>&edit=profile" class="user-avatar-container">
+                    <?= $avatar_html ?>
+                </a>
             </div>
         </div>
 

@@ -17,6 +17,56 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 $user_name = $user['name'];
 $wallet = $user['balance'];
 $mentor_status = $user['mentor_status'];
+$profile_photo = $user['profile_photo'] ?? null;
+
+// Handle Profile Update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_student_profile') {
+    $new_name = trim($_POST['name']);
+    $remove_photo = isset($_POST['remove_photo']) ? 1 : 0;
+    $updated_photo = $profile_photo;
+
+    if ($remove_photo) {
+        $updated_photo = null;
+    }
+
+    if (!empty($_FILES['profile_photo']['name'])) {
+        $filename = "profile_" . time() . "_" . uniqid() . "_" . basename($_FILES['profile_photo']['name']);
+        $target = "../uploads/" . $filename;
+        if (move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target)) {
+            $updated_photo = $filename;
+        }
+    }
+
+    $stmt = $pdo->prepare("UPDATE users SET name = ?, profile_photo = ? WHERE id = ?");
+    $stmt->execute([$new_name, $updated_photo, $user_id]);
+    header("Location: index.php?success=profile_updated");
+    exit;
+}
+
+// Determine Avatar Media
+$is_video_avatar = false;
+$avatar_html = '<div class="user-avatar-initials"><i class="fas fa-user"></i></div>';
+
+if ($profile_photo) {
+    $ext = strtolower(pathinfo($profile_photo, PATHINFO_EXTENSION));
+    $is_video_avatar = in_array($ext, ['mp4', 'webm', 'ogg']);
+    $media_url = '../uploads/' . htmlspecialchars($profile_photo);
+    if ($is_video_avatar) {
+        $avatar_html = '<video src="' . $media_url . '" class="user-avatar-media" autoplay loop muted playsinline></video>';
+    } else {
+        $avatar_html = '<img src="' . $media_url . '" class="user-avatar-media">';
+    }
+}
+
+// Time-based greeting
+$hour = date('H');
+if ($hour < 12) {
+    $greeting = "Good morning";
+} elseif ($hour < 18) {
+    $greeting = "Good afternoon";
+} else {
+    $greeting = "Good evening";
+}
 
 // Next Upcoming Session (Accepted, Future)
 $stmt = $pdo->prepare("
@@ -246,7 +296,7 @@ $recent_sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             transform: scale(1.1);
         }
 
-        .user-avatar {
+        .user-avatar-initials {
             width: 40px;
             height: 40px;
             background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
@@ -258,6 +308,14 @@ $recent_sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 800;
             font-size: 15px;
             text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);
+        }
+        
+        .user-avatar-media {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            object-fit: cover;
             box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);
         }
 
@@ -534,23 +592,21 @@ $recent_sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Top Bar -->
         <div class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search mentors, topics, IDs...">
-            </div>
+            <h2 class="m-0" style="font-size: 28px; font-weight: 800; letter-spacing: -1px;"><?= $greeting ?>, <span style="background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><?= htmlspecialchars($user_name) ?></span>! 👋</h2>
             <div class="top-icons">
                 <i class="far fa-bell icon-btn"></i>
                 <i class="far fa-moon icon-btn"></i>
                 <i class="fas fa-info-circle icon-btn"></i>
-                <div class="user-avatar">
-                    <?= substr($user_name, 0, 1) ?>
-                </div>
+                <button type="button" class="btn p-0 border-0 user-avatar-container" data-bs-toggle="modal" data-bs-target="#editStudentProfileModal">
+                    <?= $avatar_html ?>
+                </button>
             </div>
         </div>
 
         <!-- Header -->
         <div class="page-header">
-            <h1>Dashboard Overview</h1>
+            <h1>Student Overview</h1>
+            <p class="text-muted fw-600">Explore your learning progress and upcoming sessions.</p>
         </div>
 
         <!-- Stats Grid -->
@@ -657,9 +713,65 @@ $recent_sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     </div>
 
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editStudentProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content border-0 shadow-lg" method="POST" enctype="multipart/form-data" style="border-radius: 30px;">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="fw-800 m-0">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <input type="hidden" name="action" value="update_student_profile">
+                    
+                    <div class="mb-4">
+                        <div class="position-relative d-inline-block">
+                            <div style="width: 120px; height: 120px; border-radius: 35px; overflow: hidden; box-shadow: 0 10px 30px rgba(67, 24, 255, 0.15);">
+                                <?= $avatar_html ?>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="btn btn-premium-sm btn-p-light btn-sm px-4 rounded-pill shadow-sm">
+                                <i class="fas fa-camera me-2"></i> Change Photo
+                                <input type="file" name="profile_photo" hidden accept="image/*,video/*">
+                            </label>
+                            <?php if ($profile_photo): ?>
+                                <div class="form-check mt-3 justify-content-center d-flex">
+                                    <input class="form-check-input" type="checkbox" name="remove_photo" id="removeStudentPhoto">
+                                    <label class="form-check-label ms-2 text-danger fw-600 small" for="removeStudentPhoto">Remove photo</label>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="text-start">
+                        <label class="form-label fw-700 text-dark small mb-2 ms-2">Display Name</label>
+                        <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($user_name) ?>" 
+                            style="border-radius: 15px; padding: 12px 20px; border: 2px solid #F4F7FE; font-weight: 600;" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0 d-flex gap-2">
+                    <button type="button" class="btn btn-premium-sm btn-p-light w-100 py-3" data-bs-dismiss="modal" style="border-radius: 18px;">Cancel</button>
+                    <button type="submit" class="btn btn-premium-sm btn-p-primary w-100 py-3" style="border-radius: 18px;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Bootstrap Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JS for auto-opening modal on edit request -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("edit") === "profile") {
+                const modalEl = document.getElementById("editStudentProfileModal");
+                if (modalEl) {
+                    const editModal = new bootstrap.Modal(modalEl);
+                    editModal.show();
+                }
+            }
+        });
+    </script>
 </body>
-
 </html>
-l
