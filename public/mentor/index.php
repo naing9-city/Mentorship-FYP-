@@ -742,7 +742,7 @@ if ($hour < 12) {
 
         <!-- Top Bar -->
         <div class="topbar">
-            <h2 class="m-0" style="font-size: 28px; font-weight: 800; letter-spacing: -1px;"><?= $greeting ?>, <span style="background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><?= htmlspecialchars(explode(' ', $mentor['name'])[0]) ?></span>! 👋</h2>
+            <h2 class="m-0" style="font-size: 28px; font-weight: 800; letter-spacing: -1px;"><?= $greeting ?>, <span style="background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><?= htmlspecialchars($mentor['name']) ?></span>! 👋</h2>
             <div class="top-icons">
                 <i class="far fa-bell icon-btn"></i>
                 <i class="far fa-moon icon-btn"></i>
